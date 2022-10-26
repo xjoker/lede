@@ -147,13 +147,11 @@
 			partition@100000 {
 				label = "Nvram";
 				reg = <0x100000 0x40000>;
-				read-only;
 			};
 
 			partition@140000 {
 				label = "Bdata";
 				reg = <0x140000 0x40000>;
-				read-only;
 			};
 
 			factory: partition@180000 {
@@ -193,14 +191,13 @@
 				reg = <0x600000 0x1e00000>;
 			};
 
-
 			/* ubi partition is the result of squashing
 			 * consecutive stock partitions:
 			 * - ubi
 			 * - ubi1
 			 * - overlay
 			 */
-			partition@2400000  {
+			partition@2400000 {
 				label = "ubi";
 				reg = <0x2400000 0x5000000>;
 			};

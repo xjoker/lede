@@ -1,6 +1,6 @@
 DTS_DIR := $(DTS_DIR)/mediatek
 
-KERNEL_LOADADDR := 0x48000000
+KERNEL_LOADADDR := 0x44000000
 
 define Image/Prepare
 	# For UBI we want only one extra block
@@ -39,17 +39,17 @@ define Build/mt7986-gpt
 endef
 
 define Build/gen-ubi-initramfs
-       sh $(TOPDIR)/scripts/ubinize-image.sh \
-               $(if $(UBOOTENV_IN_UBI),--uboot-env) \
-               --kernel $(KDIR)/tmp/$(KERNEL_INITRAMFS_IMAGE) \
-               $(foreach part,$(UBINIZE_PARTS),--part $(part)) \
-               "$(1).tmp" \
-               -p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
-               $(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
-               $(if $(VID_HDR_OFFSET),-O $(VID_HDR_OFFSET)) \
-               $(UBINIZE_OPTS) && \
-       cat "$(1).tmp" > "$(1)" && rm "$(1).tmp" && \
-       $(CP) "$(1)" $(BIN_DIR)/
+	sh $(TOPDIR)/scripts/ubinize-image.sh \
+		$(if $(UBOOTENV_IN_UBI),--uboot-env) \
+		--kernel $(KDIR)/tmp/$(KERNEL_INITRAMFS_IMAGE) \
+		$(foreach part,$(UBINIZE_PARTS),--part $(part)) \
+		"$(1).tmp" \
+		-p $(BLOCKSIZE:%k=%KiB) -m $(PAGESIZE) \
+		$(if $(SUBPAGESIZE),-s $(SUBPAGESIZE)) \
+		$(if $(VID_HDR_OFFSET),-O $(VID_HDR_OFFSET)) \
+		$(UBINIZE_OPTS) && \
+	cat "$(1).tmp" > "$(1)" && rm "$(1).tmp" && \
+	$(CP) "$(1)" $(BIN_DIR)/
 endef
 
 define Device/bananapi_bpi-r3
@@ -103,6 +103,7 @@ define Device/mediatek_mt7986a-rfb
   DEVICE_MODEL := MTK7986 rfba AP
   DEVICE_DTS := mt7986a-rfb
   DEVICE_DTS_DIR := $(DTS_DIR)/
+  KERNEL_LOADADDR := 0x48000000
   DEVICE_DTS_OVERLAY := mt7986a-rfb-spim-nand mt7986a-rfb-spim-nor
   SUPPORTED_DEVICES := mediatek,mt7986a-rfb
   UBINIZE_OPTS := -E 5
@@ -126,6 +127,7 @@ define Device/mediatek_mt7986b-rfb
   DEVICE_MODEL := MTK7986 rfbb AP
   DEVICE_DTS := mt7986b-rfb
   DEVICE_DTS_DIR := $(DTS_DIR)/
+  KERNEL_LOADADDR := 0x48000000
   SUPPORTED_DEVICES := mediatek,mt7986b-rfb
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
@@ -143,12 +145,13 @@ define Device/xiaomi_redmi-router-ax6000
   DEVICE_MODEL := Redmi Router AX6000
   DEVICE_DTS := mt7986a-xiaomi-redmi-router-ax6000
   DEVICE_DTS_DIR := ../dts
+  KERNEL_LOADADDR := 0x48000000
   UBINIZE_OPTS := -E 5
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   KERNEL_INITRAMFS := kernel-bin | lzma | \
-       fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | \
-       gen-ubi-initramfs $(KDIR)/tmp/$$(KERNEL_INITRAMFS_PREFIX)-factory.ubi
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | \
+	gen-ubi-initramfs $(KDIR)/tmp/$$(KERNEL_INITRAMFS_PREFIX)-factory.ubi
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += xiaomi_redmi-router-ax6000
